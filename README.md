@@ -1,1 +1,1 @@
-# purpur_bot
+# Purpur SMP Discord Bot
