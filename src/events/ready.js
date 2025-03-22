@@ -1,7 +1,7 @@
 const util = require('minecraft-server-util');
 
-const SERVER_IP = 'ton-ip-ou-localhost'; // Remplace par l'IP du serveur Minecraft
-const SERVER_PORT = 25565; // Change si ton port est différent
+const SERVER_IP = 'localhost'; // Remplacer par l'IP du serveur Minecraft
+const SERVER_PORT = 25565;
 
 module.exports = (client) => {
     console.log(`✅ Connecté en tant que ${client.user.tag}`);
@@ -11,9 +11,10 @@ module.exports = (client) => {
             const response = await util.status(SERVER_IP, SERVER_PORT);
             const playerCount = response.players.online;
 
+
+
             client.user.setPresence({
-                activities: [{ name: `Regarde ${playerCount} joueurs`, type: 'WATCHING' }],
-                status: 'online'
+                activities: [{ name: `Purpur-SMP avec ${playerCount} joueurs`}],
             });
 
         } catch (error) {
@@ -25,7 +26,7 @@ module.exports = (client) => {
         }
     };
 
-    // Met à jour le statut toutes les 60 secondes
+    // Met à jour le statut toutes les 30 secondes
     updateStatus();
-    setInterval(updateStatus, 60000);
+    setInterval(updateStatus, 30000);
 };
