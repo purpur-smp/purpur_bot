@@ -52,7 +52,7 @@ const createVoiceChannelEmbed = (userId) => {
         .setDescription(
             "Use the dropdown menu below to configure your voice channel settings."
         )
-        .setColor("#a9d9e2")
+        .setColor("#FF81FF")
         .setFooter({ text: "Voice Channel Manager" });
 
     const row = new ActionRowBuilder().addComponents(
