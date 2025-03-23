@@ -35,12 +35,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SolareFlame/purpur_bot"
+    "url": "git+https://github.com/purpur-smp/purpur_bot"
   },
   "author": "ChairGamertag87 & SolareFlame",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/SolareFlame/purpur_bot/issues"
+    "url": "https://github.com/purpur-smp/purpur_bot/issues"
   },
-  "homepage": "https://github.com/SolareFlame/purpur_bot#readme"
+  "homepage": "https://github.com/purpur-smp/purpur_bot#readme"
 }
