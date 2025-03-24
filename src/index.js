@@ -7,7 +7,6 @@ const tempVoiceHandler = require('./events/tempVoiceHandler');
 
 // Environment variables
 const token = process.env.TOKEN;
-console.log(token)
 const clientId = process.env.CLIENT_ID;
 const guildId = process.env.GUILD_ID;
 
