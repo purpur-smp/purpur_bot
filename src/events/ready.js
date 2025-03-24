@@ -1,7 +1,9 @@
 const util = require('minecraft-server-util');
+require('dotenv').config();
 
-const SERVER_IP = 'localhost'; // Remplacer par l'IP du serveur Minecraft
-const SERVER_PORT = 25565;
+const SERVER_IP = process.env.SERVER_IP;
+const SERVER_PORT =  parseInt(process.env.SERVER_PORT);
+const VOICE_CHANNEL_ID = process.env.CONNECTED_VOICE_CHANNEL_ID;
 
 module.exports = (client) => {
     console.log(`✅ Connecté en tant que ${client.user.tag}`);
@@ -16,6 +18,11 @@ module.exports = (client) => {
             client.user.setPresence({
                 activities: [{ name: `Purpur-SMP avec ${playerCount} joueurs`}],
             });
+
+            const channel = client.channels.cache.get(VOICE_CHANNEL_ID);
+            if (channel) {
+                await channel.setName(` ${playerCount} connectés`);
+            }
 
         } catch (error) {
             console.error('❌ Impossible de récupérer le statut du serveur:', error);
