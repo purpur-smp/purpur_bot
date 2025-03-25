@@ -1,4 +1,5 @@
 const { Events } = require('discord.js');
+const { buildBanner } = require('./join/bannerBuilder.js');
 require('dotenv').config();
 
 module.exports = {
@@ -6,17 +7,21 @@ module.exports = {
     once: false,
     async execute(member) {
         try {
-            // Get the welcome channel
             const welcomeChannelId = process.env.WELCOME_CHANNEL_ID;
             const welcomeChannel = member.guild.channels.cache.get(welcomeChannelId);
 
             if (welcomeChannel) {
-                welcomeChannel.send(`✨ Hello ${member} ! Bienvenue sur **PurpurSMP** ! Merci d'aller lire <#1351671419313979393>! ✨`);
+                const buffer = await buildBanner('./index.html', member.user.displayAvatarURL({ format: 'png', size: 2048 }), member.user.globalName);
+                console.log(Buffer.isBuffer(buffer));
+
+                welcomeChannel.send({
+                    content: `<@${member.id}>`,
+                    files: [{ attachment: buffer, name: 'screenshot.png' }]
+                });
             } else {
                 console.log(`Channel with ID ${welcomeChannelId} not found.`);
             }
 
-            // Get and assign the role
             const welcomeRoleId = process.env.WELCOME_ROLE_ID;
             const welcomeRole = member.guild.roles.cache.get(welcomeRoleId);
 
