@@ -4,6 +4,7 @@ const fs = require("fs");
 const { Client, GatewayIntentBits, Collection, REST, Routes } = require("discord.js");
 const mysql = require('mysql2');
 const tempVoiceHandler = require('./events/tempVoiceHandler');
+const path = require("node:path");
 
 // Environment variables
 const token = process.env.TOKEN;
@@ -25,23 +26,23 @@ const client = new Client({
 client.commands = new Collection();
 const commandArray = [];
 
+
 // Load command files from "commands"
-const commandFiles = fs.readdirSync("./commands/").filter(file => file.endsWith(".js"));
+const commandFiles = fs.readdirSync(__dirname + "/commands/").filter(file => file.endsWith(".js"));
 for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
+    const command = require(__dirname + `/commands/${file}`);
     console.log(`${file} loaded`);
     client.commands.set(command.data.name, command);
     commandArray.push(command.data.toJSON());
 }
 
-client.once('ready', () => require('./events/ready')(client));
+client.once('ready', () => require(__dirname + '/events/ready')(client));
 
-// Load subfolders of commands in "commands"
-const commandSubFolders = fs.readdirSync("./commands/").filter(folder => !folder.endsWith(".js"));
+const commandSubFolders = fs.readdirSync(__dirname + "/commands/").filter(folder => !folder.endsWith(".js"));
 for (const folder of commandSubFolders) {
-    const subCommandFiles = fs.readdirSync(`./commands/${folder}/`).filter(file => file.endsWith(".js"));
+    const subCommandFiles = fs.readdirSync(__dirname + `/commands/${folder}/`).filter(file => file.endsWith(".js"));
     for (const file of subCommandFiles) {
-        const command = require(`./commands/${folder}/${file}`);
+        const command = require(__dirname + `/commands/${folder}/${file}`);
         console.log(`${file} loaded from folder ${folder}`);
         client.commands.set(command.data.name, command);
         commandArray.push(command.data.toJSON());
@@ -49,9 +50,9 @@ for (const folder of commandSubFolders) {
 }
 
 // Load event files from "events"
-const eventFiles = fs.readdirSync("./events/").filter(file => file.endsWith(".js"));
+const eventFiles = fs.readdirSync(__dirname + "/events/").filter(file => file.endsWith(".js"));
 for (const file of eventFiles) {
-    const event = require(`./events/${file}`);
+    const event = require(__dirname + `/events/${file}`);
     if (event.once) {
         client.once(event.name, (...args) => event.execute(...args, client));
     } else {
@@ -61,11 +62,11 @@ for (const file of eventFiles) {
 
 // MySQL connection configuration
 const db = mysql.createConnection({
-    host: process.env.DB_HOST,       // MySQL server address or domain
-    user: process.env.DB_USER,       // MySQL username
-    password: process.env.DB_PASSWORD, // MySQL password
-    database: process.env.DB_NAME,   // Database name
-    port: process.env.DB_PORT        // MySQL port (default is 3306)
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT
 });
 
 // Test the connection
