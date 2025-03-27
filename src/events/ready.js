@@ -19,7 +19,7 @@ module.exports = (client) => {
                 console.log("Check made, players online: " + playerCount);
 
                 client.user.setPresence({
-                    activities: [{ name: `Purpur-SMP avec ${playerCount} joueurs` }],
+                    activities: [{ name: `Purpur-SMP avec ${playerCount} joueurs`, type: 'WATCHING' }],
                 });
 
                 const channel = client.channels.cache.get(VOICE_CHANNEL_ID);
