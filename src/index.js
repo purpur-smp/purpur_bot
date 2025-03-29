@@ -22,6 +22,8 @@ const client = new Client({
     ],
 });
 
+const rest = new REST({ version: '10' }).setToken(token);
+
 // Initialize collections
 client.commands = new Collection();
 const commandArray = [];
@@ -84,6 +86,23 @@ process.on('exit', () => db.end());
 // Register slash commands with the REST API
 client.once("ready", async () => {
     console.log(`🤖 Logged in as ${client.user.tag}`);
+     try {
+        const commands = commandFiles.map(file => {
+            console.log(`[INDEX] : Enregistrement de la commande ${file}`);
+
+            const command = require(`./commands/${file}`);
+            client.commands.set(command.data.name, command);
+            return command.data.toJSON();
+        });
+
+        await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
+            body: commands,
+        });
+
+        console.log('[INDEX] : Toutes les commandes ont été enregistrées avec succès.');
+    } catch (error) {
+        console.error('[INDEX] : Erreur lors de l\'enregistrement des commandes:', error);
+    }
 });
 
 // Handle interactions (slash commands)
