@@ -6,8 +6,6 @@ const SERVER_PORT = parseInt(process.env.MC_SERVER_PORT);
 const VOICE_CHANNEL_ID = process.env.CONNECTED_VOICE_CHANNEL_ID;
 
 module.exports = (client) => {
-    console.log(`✅ Connecté en tant que ${client.user.tag}`);
-
     const updateStatus = async () => {
         try {
             const options = { query: true };

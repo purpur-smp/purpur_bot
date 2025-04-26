@@ -6,6 +6,7 @@ const mysql = require('mysql2');
 const tempVoiceHandler = require('./events/tempVoiceHandler');
 const path = require("node:path");
 
+
 // Environment variables
 const token = process.env.TOKEN;
 const clientId = process.env.CLIENT_ID;
@@ -70,6 +71,7 @@ const db = mysql.createConnection({
     database: process.env.DB_NAME,
     port: process.env.DB_PORT
 });
+module.exports = db;
 
 // Test the connection
 db.connect((err) => {
@@ -79,6 +81,8 @@ db.connect((err) => {
     }
     console.log("✅ Connected to the MySQL database!");
 });
+
+
 
 // Properly close the connection (optional)
 process.on('exit', () => db.end());
