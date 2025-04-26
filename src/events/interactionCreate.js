@@ -1,11 +1,23 @@
 require('dotenv').config();
-const { PermissionFlagsBits, Events, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
+const { PermissionFlagsBits, Events, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, EmbedBuilder,
+    ButtonBuilder, ButtonStyle
+} = require('discord.js');
 const mysql = require('mysql2/promise');
+
+
 
 module.exports = {
     name: Events.InteractionCreate,
-    async execute(interaction) {
+    async execute(interaction,newState) {
         try {
+
+            const db = await mysql.createConnection({
+                host: process.env.DB_HOST,
+                user: process.env.DB_USER,
+                password: process.env.DB_PASSWORD,
+                database: process.env.DB_NAME,
+                port: process.env.DB_PORT
+            });
 
 
             if (interaction.isStringSelectMenu()) {
@@ -509,6 +521,80 @@ module.exports = {
                         });
                 }
             }
+
+            if (interaction.customId === 'create_ticket') {
+                const guild = interaction.guild;
+                const user = interaction.user;
+
+                const ticketCategoryId = process.env.TICKET_CATEGORY_ID;
+
+                const channel = await guild.channels.create({
+                    name: `ticket-${user.username}`,
+                    type: 0, // GUILD_TEXT
+                    parent: ticketCategoryId,
+                    permissionOverwrites: [
+                        {
+                            id: guild.id,
+                            deny: ['ViewChannel'],
+                        },
+                        {
+                            id: user.id,
+                            allow: ['ViewChannel', 'SendMessages', 'ReadMessageHistory'],
+                        },
+                    ],
+                });
+                await db.execute(
+                    'INSERT INTO tickets (user_id, ticket_channel_id, status) VALUES (?, ?, ?)',
+                    [user.id, channel.id, 'open']
+                );
+
+                const ticketEmbed = new EmbedBuilder()
+                    .setTitle('🎫 Nouveau Ticket')
+                    .setDescription(`Bonjour ${user}, merci d'avoir ouvert un ticket.\nUn membre du staff va vous aider bientôt.`)
+                    .setColor('#CE34CE')
+                    .setFooter({ text: 'Purpur-SMP Support'})
+                    .setTimestamp();
+
+                const closeButton = new ButtonBuilder()
+                    .setCustomId('close_ticket')
+                    .setLabel('Fermer le ticket')
+                    .setStyle(ButtonStyle.Danger);
+
+                const row = new ActionRowBuilder().addComponents(closeButton);
+
+                await channel.send({ embeds: [ticketEmbed], components: [row] });
+
+                await interaction.reply({ content: `Ton ticket a été créé ici : ${channel}`, ephemeral: true });
+            }
+
+            if (interaction.customId === 'close_ticket') {
+                const channel = interaction.channel;
+
+                // 1. Changer le status dans la base
+                await db.execute(
+                    'UPDATE tickets SET status = ? WHERE ticket_channel_id = ?',
+                    ['closed', channel.id]
+                );
+
+                // 2. Récupérer tous les messages du salon pour faire l'archive
+                const messages = await channel.messages.fetch({ limit: 100 });
+                const sortedMessages = Array.from(messages.values()).reverse();
+
+                let archiveContent = `Transcript du ticket #${channel.name} :\n\n`;
+                for (const msg of sortedMessages) {
+                    archiveContent += `[${msg.createdAt.toISOString()}] ${msg.author.tag}: ${msg.content}\n`;
+                }
+
+                // 4. Répondre à l'utilisateur + supprimer le salon après 5 secondes
+                await interaction.reply({ content: 'Ticket fermé ! Le salon sera supprimé dans 5 secondes.', ephemeral: true });
+
+                setTimeout(async () => {
+                    await channel.delete();
+                }, 5000);
+            }
+
+
+
 
             // Gestion des commandes slash (si nécessaire)
             if (interaction.isCommand()) {
