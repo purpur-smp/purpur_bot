@@ -5,7 +5,7 @@ const { Client, GatewayIntentBits, Collection, REST, Routes } = require("discord
 const mysql = require('mysql2');
 const tempVoiceHandler = require('./events/tempVoiceHandler');
 const path = require("node:path");
-
+const messageCreate = require('./events/whitelistMessageCreate');
 
 // Environment variables
 const token = process.env.TOKEN;
@@ -25,6 +25,7 @@ const client = new Client({
 
 const rest = new REST({ version: '10' }).setToken(token);
 
+client.on('messageCreate', (message) => messageCreate(client, message));
 // Initialize collections
 client.commands = new Collection();
 const commandArray = [];
